@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kerala Trip Planner</title>
+<meta name="description" content="Interactive plan for 20–29 Nov 2026: Tirupur wedding, Kochi and the Fort Kochi sunset, then five nights in Alleppey with a village canoe, the Kottayam ferry and Marari beach. Buses and boats, within ₹20,000.">
+<style>
+  :root {
+    --bg: #f6f5f1;
+    --surface: #ffffff;
+    --surface-2: #f0efea;
+    --text: #1d1f1e;
+    --muted: #5d625f;
+    --line: #e2e0d8;
+    --accent: #0f766e;
+    --accent-soft: rgba(15, 118, 110, .10);
+    --accent-ink: #0b5a54;
+    --on-accent: #ffffff;
+    --bus: #64748b;
+    --train: #7c6f9b;
+    --ferry: #2563eb;
+    --good: #15803d;
+    --warn: #b45309;
+    --bad: #b91c1c;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.05);
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121413;
+      --surface: #1a1d1c;
+      --surface-2: #232725;
+      --text: #ecebe6;
+      --muted: #a3a8a4;
+      --line: #2e3331;
+      --accent: #2dd4bf;
+      --accent-soft: rgba(45, 212, 191, .12);
+      --accent-ink: #5eead4;
+      --on-accent: #0b1f1d;
+      --bus: #94a3b8;
+      --train: #a99cc9;
+      --ferry: #60a5fa;
+      --good: #4ade80;
+      --warn: #fbbf24;
+      --bad: #f87171;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: var(--accent-ink); text-underline-offset: 2px; }
+  button { font: inherit; color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Hero */
+  .hero {
+    position: relative; color: #fff; min-height: 420px; display: flex; align-items: flex-end;
+    background: #23332f url("images/kuttanad.jpg") center/cover no-repeat;
+  }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.3), rgba(0,0,0,.6) 40%, rgba(0,0,0,.85)); }
+  .hero .wrap { position: relative; z-index: 1; padding-top: 64px; padding-bottom: 36px; width: 100%; }
+  .eyebrow { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; opacity: .85; margin: 0 0 10px; }
+  .hero h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.1; margin: 0 0 12px; max-width: 760px; letter-spacing: -.01em; }
+  .hero p.lead { font-size: clamp(16px, 2vw, 19px); max-width: 720px; margin: 0 0 20px; opacity: .95; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28); backdrop-filter: blur(6px); padding: 6px 12px; border-radius: 999px; font-size: 14px; white-space: nowrap; }
+  .chip b { font-weight: 700; }
+  .hero .credit { position: absolute; right: 16px; bottom: 8px; z-index: 1; font-size: 11px; opacity: .7; }
+
+  nav.toc { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 90%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+  nav.toc .wrap { display: flex; gap: 4px; overflow-x: auto; padding-top: 8px; padding-bottom: 8px; scrollbar-width: none; align-items: center; }
+  nav.toc a { text-decoration: none; color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; white-space: nowrap; }
+  nav.toc a:hover { background: var(--surface-2); color: var(--text); }
+  nav.toc .spacer { flex: 1; }
+  nav.toc .navtotal { font-size: 14px; white-space: nowrap; padding: 6px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-ink); font-weight: 650; }
+  nav.toc .navtotal.over { background: color-mix(in srgb, var(--bad) 12%, transparent); color: var(--bad); }
+
+  section { padding: 52px 0 8px; scroll-margin-top: 56px; }
+  h2 { font-size: clamp(24px, 3vw, 32px); line-height: 1.2; margin: 0 0 8px; letter-spacing: -.01em; }
+  h3 { font-size: 18px; margin: 0 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 22px; max-width: 760px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+  .pad { padding: 20px; }
+  .caption { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+
+  /* Day picker */
+  .daystrip { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 10px; scrollbar-width: thin; }
+  .daybtn {
+    flex: 0 0 auto; min-width: 86px; text-align: left; cursor: pointer; border: 1px solid var(--line); background: var(--surface);
+    border-radius: 12px; padding: 8px 12px; line-height: 1.25; transition: border-color .15s, background .15s;
+  }
+  .daybtn:hover { border-color: var(--accent); }
+  .daybtn .d { font-weight: 750; font-size: 15px; display: block; }
+  .daybtn .k { font-size: 12px; color: var(--muted); }
+  .daybtn[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .daybtn[aria-selected="true"] .k { color: var(--on-accent); opacity: .85; }
+  .daybtn.today { box-shadow: 0 0 0 2px var(--warn) inset; }
+  .planner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 6px; }
+  .planner > *, .budget > * { min-width: 0; }
+  .daycard { overflow: hidden; }
+  .daycard .pic { aspect-ratio: 16/8; background: var(--surface-2); display: grid; place-items: center; color: var(--muted); }
+  .daycard .pic.icon { aspect-ratio: auto; height: 96px; }
+  .daycard .pic img { width: 100%; height: 100%; object-fit: cover; }
+  .daycard .pic svg { width: 56px; height: 56px; stroke: currentColor; fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; opacity: .6; }
+  .daycard .body { padding: 18px 20px 20px; }
+  .dayhead { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; margin-bottom: 10px; }
+  .dayhead .date { font-weight: 800; }
+  .dayhead h3 { margin: 0; font-size: 20px; }
+  .pill { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+  .pill.wfh { background: color-mix(in srgb, var(--warn) 14%, transparent); color: var(--warn); }
+  .pill.leave { background: var(--accent-soft); color: var(--accent-ink); }
+  ol.sched { list-style: none; margin: 0; padding: 0; }
+  ol.sched li { display: grid; grid-template-columns: 112px 1fr; gap: 12px; padding: 9px 0; border-top: 1px dashed var(--line); }
+  ol.sched li:first-child { border-top: 0; }
+  ol.sched .t { font-weight: 700; font-size: 14px; color: var(--accent-ink); }
+  ol.sched .x { font-size: 15px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .meta span { font-size: 13px; background: var(--surface-2); padding: 5px 10px; border-radius: 8px; color: var(--muted); }
+  .tip { margin-top: 12px; font-size: 14px; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); color: var(--text); }
+  .planb { margin-top: 12px; font-size: 14px; padding: 10px 12px; border-radius: 10px; border: 1px dashed var(--warn); background: color-mix(in srgb, var(--warn) 7%, transparent); }
+  .slack { margin-bottom: 16px; }
+  .slack h3 { font-size: 16px; }
+  .daynav { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; }
+  .btn { cursor: pointer; border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 12px; font-size: 14px; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 650; }
+  .btn:disabled { opacity: .4; cursor: default; }
+
+  /* Map */
+  .map svg { width: 100%; height: auto; display: block; }
+  .mapscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .map .edge { transition: opacity .2s, stroke-width .2s; }
+  .map.focus .edge { opacity: .22; }
+  .map.focus .edge.on { opacity: 1; stroke-width: 5; }
+  .map .node { cursor: pointer; }
+  .map .node circle { fill: var(--surface); stroke: var(--text); stroke-width: 2; transition: fill .2s; }
+  .map .node.on circle { fill: var(--accent); stroke: var(--accent); }
+  .map .node text { fill: var(--text); font-size: 19px; font-weight: 650; }
+  .map .node .s { fill: var(--muted); font-size: 15.5px; font-weight: 400; }
+  .map .node:hover circle { stroke: var(--accent); }
+  .map .node:focus-visible { outline: none; }
+  .map .node:focus-visible circle { stroke: var(--accent); stroke-width: 4; }
+
+  /* Budget */
+  .budget { display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start; }
+  .controls { display: grid; gap: 10px; margin-bottom: 14px; }
+  .toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 15px; user-select: none; }
+  .toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .toggle .sw { width: 40px; height: 22px; border-radius: 999px; background: var(--line); position: relative; flex: 0 0 auto; transition: background .2s; }
+  .toggle .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .2s; }
+  .toggle input:checked + .sw { background: var(--accent); }
+  .toggle input:checked + .sw::after { transform: translateX(18px); }
+  .toggle input:focus-visible + .sw { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: 0; background: var(--surface); padding: 6px 12px; cursor: pointer; font-size: 14px; }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); font-weight: 650; }
+  .segrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 15px; }
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--surface-2); font-weight: 650; }
+  tr:last-child td { border-bottom: 0; }
+  tr.group td { background: var(--surface-2); font-size: 12.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); padding-top: 7px; padding-bottom: 7px; }
+  td .hint { display: block; font-size: 12.5px; color: var(--muted); }
+  td.amt { width: 120px; }
+  td.amt input {
+    width: 100%; min-width: 86px; text-align: right; font: inherit; font-variant-numeric: tabular-nums; color: var(--text);
+    background: var(--surface-2); border: 1px solid transparent; border-radius: 8px; padding: 5px 8px;
+  }
+  td.amt input:focus { outline: none; border-color: var(--accent); background: var(--surface); }
+  tr.off td:not(.amt) { color: var(--muted); }
+  tfoot td { font-weight: 750; background: var(--surface-2); }
+  .summary { position: sticky; top: 64px; }
+  .bigfig { font-size: 34px; font-weight: 800; line-height: 1.1; margin: 2px 0 2px; }
+  .bigfig.over { color: var(--bad); }
+  .label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 650; }
+  .bar { height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin: 12px 0 6px; position: relative; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s; }
+  .bar.over i { background: var(--bad); }
+  .bar.actual i { background: var(--warn); }
+  .row2 { display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+  .divider { border-top: 1px solid var(--line); margin: 16px 0; }
+  .cap { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  .cap input { width: 100px; font: inherit; text-align: right; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--text); }
+
+  /* Checklists */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .cl h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .cl h3 small { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .cl .bar { height: 6px; margin: 4px 0 12px; }
+  .cl ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+  .cl label { display: grid; grid-template-columns: 22px 1fr; gap: 10px; align-items: start; cursor: pointer; padding: 5px 6px; border-radius: 8px; font-size: 15px; }
+  .cl label:hover { background: var(--surface-2); }
+  .cl input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--accent); }
+  .cl input:checked + span { text-decoration: line-through; color: var(--muted); }
+
+  /* Stay / food */
+  .stay { overflow: hidden; display: flex; flex-direction: column; }
+  .stay img { aspect-ratio: 16/9; object-fit: cover; width: 100%; }
+  .stay .body { padding: 16px 18px 18px; }
+  .stay p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+  .stay .price { margin-top: 8px; font-weight: 700; color: var(--text); }
+  .foodlist { display: grid; gap: 0; }
+  .food { display: grid; grid-template-columns: 140px 1fr auto; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15px; }
+  .food:first-child { border-top: 0; }
+  .food b { display: block; }
+  .food .w { color: var(--muted); }
+  .food .p { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  /* Gallery */
+  .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .gallery figure { margin: 0; position: relative; border-radius: 12px; overflow: hidden; }
+  .gallery img { aspect-ratio: 1/1; object-fit: cover; width: 100%; transition: transform .4s; }
+  .gallery figure:hover img { transform: scale(1.04); }
+  .gallery figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 16px 10px 8px; color: #fff; font-size: 13px; font-weight: 600; background: linear-gradient(180deg, transparent, rgba(0,0,0,.72)); }
+
+  ul.tips { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 15px; }
+  footer { padding: 44px 0 64px; color: var(--muted); font-size: 13px; }
+  footer h3 { color: var(--text); font-size: 15px; margin-top: 18px; }
+  footer ul { padding-left: 18px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .print-only { display: none; }
+
+  @media (max-width: 900px) {
+    .planner, .budget { grid-template-columns: minmax(0, 1fr); }
+    .summary { position: static; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .gallery { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    ol.sched li { grid-template-columns: 1fr; gap: 2px; }
+    .mapscroll svg { min-width: 640px; }
+    .food { grid-template-columns: 1fr auto; }
+    .food .w { grid-column: 1 / -1; order: 3; }
+    .hero { min-height: 480px; }
+    th, td { padding: 8px 8px; font-size: 14px; }
+    td.amt { width: 96px; }
+  }
+  @media print {
+    nav.toc, .daystrip, .daynav, .toolbar, .map, .gallery, .controls, .hero .credit { display: none !important; }
+    .hero { min-height: 0; color: var(--text); background: none; }
+    .hero::after { display: none; }
+    .planner { display: none; }
+    .print-only { display: block; }
+    .card { box-shadow: none; }
+    section { padding-top: 20px; break-inside: avoid-page; }
+    .budget { grid-template-columns: 1fr; }
+    td.amt input { border: 0; background: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">20–29 Nov 2026 · Kondapur → Tirupur wedding → Kochi → Alleppey → home</p>
+    <h1>A wedding, a Fort Kochi sunset and a slow week on the backwaters</h1>
+    <p class="lead">There are no flights and no rentals, and every connection has slack. Kochi gets a full afternoon, the Fort Kochi sunset and a night there. You work Monday from Fort Kochi and Tuesday from Alleppey, with a sunset boat ride after work. Then Alleppey is your base for three unhurried leave days: a village canoe, the ₹29 public ferry across Vembanad Lake, and Marari beach. One room for five nights means no repacking, and you're home on Sunday.</p>
+    <div class="chips">
+      <span class="chip">Planned <b id="heroTotal">₹18,670</b></span>
+      <span class="chip">Spare <b id="heroSpare">₹1,330</b> of ₹20,000</span>
+      <span class="chip" id="countdown">10 days · 9 nights</span>
+    </div>
+  </div>
+  <span class="credit">Kuttanad, Alappuzha · Sourav Niyogi, CC BY-SA 3.0</span>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <div class="wrap">
+    <a href="#days">Day by day</a>
+    <a href="#budget">Budget</a>
+    <a href="#checklists">Checklists</a>
+    <a href="#stay">Stay &amp; food</a>
+    <a href="#tips">Good to know</a>
+    <a href="#credits">Sources</a>
+    <span class="spacer"></span>
+    <span class="navtotal num" id="navTotal">₹18,670 / ₹20,000</span>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- DAY BY DAY -->
+  <section id="days">
+    <h2>Day by day</h2>
+    <p class="sub">Pick a day to see its plan and the route on the map. You can also tap a place on the map, or use ← → on your keyboard.</p>
+
+    <div class="card pad slack">
+      <h3>Slack built into every day</h3>
+      <ul class="tips">
+        <li>The only two bookings you can't miss are the long sleeper buses, and each has 2–3 hours spare before it.</li>
+        <li>No Kerala leg depends on a single bus. Each one is either a frequent route or has a known next bus.</li>
+        <li>There are at most 2–3 sights a day, with a rest every afternoon and nothing important after dark.</li>
+        <li>Every travel day has a "running late" fallback, so being late costs you one stop, never the trip.</li>
+      </ul>
+    </div>
+
+    <div class="daystrip" role="tablist" aria-label="Trip days" id="dayStrip"></div>
+
+    <div class="planner">
+      <article class="card daycard" id="dayCard" role="tabpanel" aria-live="polite"></article>
+
+      <div class="card pad map" id="map">
+        <div class="mapscroll"><svg viewBox="0 0 760 570" role="img" aria-label="Route map of the trip; the selected day's legs are highlighted">
+          <defs>
+            <marker id="arrowGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0L10 5L0 10z" fill="var(--muted)"/>
+            </marker>
+            <linearGradient id="seaFade" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="var(--ferry)" stop-opacity="0"/>
+              <stop offset=".3" stop-color="var(--ferry)" stop-opacity=".09"/>
+            </linearGradient>
+          </defs>
+          <text x="24" y="30" font-size="20" font-weight="700" fill="var(--text)">Night buses at both ends, backwaters in between</text>
+          <!-- sea and lake -->
+          <path d="M0 150 L118 150 C 128 200, 152 220, 150 255 C 146 320, 128 340, 132 400 S 150 500, 164 570 L0 570 Z" fill="url(#seaFade)"/>
+          <text x="24" y="330" font-size="15" font-style="italic" fill="var(--muted)">Arabian Sea</text>
+          <path d="M206 288 C 232 272, 252 302, 262 342 C 280 392, 300 432, 290 470 C 272 490, 236 474, 228 432 C 220 392, 200 332, 206 288 Z" fill="var(--ferry)" fill-opacity=".14"/>
+          <text x="292" y="340" font-size="15" font-style="italic" fill="var(--muted)">Vembanad Lake</text>
+          <g font-size="15" fill="var(--muted)">
+            <text x="480" y="250">Alleppey is your base for 5 nights:</text>
+            <text x="480" y="272">one room, no repacking, and day</text>
+            <text x="480" y="294">trips by canoe, ferry and local bus.</text>
+          </g>
+          <!-- Hyderabad links -->
+          <g class="edge" data-days="fri20 sat21">
+            <path d="M726 66 L 664 88" stroke="var(--muted)" stroke-width="1.8" stroke-dasharray="4 5" fill="none" marker-end="url(#arrowGrey)"/>
+            <text x="745" y="58" text-anchor="end" font-size="16" fill="var(--muted)">from Hyderabad · Fri night</text>
+          </g>
+          <g class="edge" data-days="sat28 sun29">
+            <path d="M156 236 L 140 120" stroke="var(--muted)" stroke-width="1.8" stroke-dasharray="4 5" fill="none" marker-end="url(#arrowGrey)"/>
+            <text x="24" y="104" font-size="16" fill="var(--muted)">to Hyderabad · Sat afternoon</text>
+          </g>
+          <!-- legs -->
+          <path class="edge" data-days="sun22" d="M653 92 L455 115 L294 175 L160 250" fill="none" stroke="var(--train)" stroke-width="3"/>
+          <path class="edge" data-days="mon23 sat28" d="M166 258 C 200 330, 198 420, 186 472" fill="none" stroke="var(--bus)" stroke-width="3"/>
+          <path class="edge" data-days="tue24" d="M186 474 C 205 455, 222 436, 236 428" fill="none" stroke="var(--ferry)" stroke-width="3"/>
+          <path class="edge" data-days="wed25" d="M187 484 C 210 494, 228 500, 244 500" fill="none" stroke="var(--ferry)" stroke-width="3"/>
+          <path class="edge" data-days="thu26" d="M188 480 C 240 474, 290 462, 330 445 C 370 430, 400 422, 424 420" fill="none" stroke="var(--ferry)" stroke-width="3"/>
+          <path class="edge" data-days="thu26" d="M434 428 C 440 540, 262 562, 186 490" fill="none" stroke="var(--bus)" stroke-width="3"/>
+          <path class="edge" data-days="fri27" d="M176 471 L168 445 L154 402" fill="none" stroke="var(--bus)" stroke-width="3"/>
+          <!-- places -->
+          <g class="node" data-place="tup" data-day="sat21" tabindex="0" role="button" aria-label="Tiruppur, Saturday 21">
+            <circle cx="653" cy="92" r="7"/><text x="640" y="120" text-anchor="end">Tiruppur</text><text class="s" x="640" y="140" text-anchor="end">Sat 21 · wedding</text>
+          </g>
+          <g class="node" data-place="cbe" data-day="sun22" tabindex="0" role="button" aria-label="Coimbatore, on Sunday's train">
+            <circle cx="455" cy="115" r="5"/><text class="s" x="455" y="142" text-anchor="middle">Coimbatore</text>
+          </g>
+          <g class="node" data-place="pkd" data-day="sun22" tabindex="0" role="button" aria-label="Palakkad, on Sunday's train">
+            <circle cx="294" cy="175" r="5"/><text class="s" x="306" y="186">Palakkad</text>
+          </g>
+          <g class="node" data-place="kochi" data-day="sun22" tabindex="0" role="button" aria-label="Fort Kochi, Sunday 22 to Monday 23">
+            <circle cx="160" cy="250" r="8"/><text x="146" y="246" text-anchor="end">Kochi</text><text class="s" x="146" y="266" text-anchor="end">Sun–Mon</text>
+          </g>
+          <g class="node" data-place="marari" data-day="fri27" tabindex="0" role="button" aria-label="Marari beach, Friday 27">
+            <circle cx="150" cy="395" r="7"/><text x="136" y="391" text-anchor="end">Marari</text><text class="s" x="136" y="410" text-anchor="end">Fri 27 · beach</text>
+          </g>
+          <g class="node" data-place="coir" data-day="fri27" tabindex="0" role="button" aria-label="Coir Museum at Kalavoor, Friday 27">
+            <circle cx="168" cy="440" r="5"/><text class="s" x="155" y="445" text-anchor="end">Coir Museum</text>
+          </g>
+          <g class="node" data-place="alp" data-day="tue24" tabindex="0" role="button" aria-label="Alleppey, Monday 23 to Friday 27 nights">
+            <circle cx="178" cy="480" r="9"/><text x="164" y="486" text-anchor="end">Alleppey</text><text class="s" x="164" y="506" text-anchor="end">Mon–Fri · 5 nights</text>
+          </g>
+          <g class="node" data-place="pun" data-day="tue24" tabindex="0" role="button" aria-label="Punnamada Lake sunset cruise, Tuesday 24">
+            <circle cx="240" cy="425" r="5"/><text class="s" x="252" y="420">Punnamada</text>
+          </g>
+          <g class="node" data-place="kut" data-day="wed25" tabindex="0" role="button" aria-label="Kuttanad canals by canoe, Wednesday 25">
+            <circle cx="250" cy="500" r="5"/><text class="s" x="262" y="505">Kuttanad canals</text>
+          </g>
+          <g class="node" data-place="ktm" data-day="thu26" tabindex="0" role="button" aria-label="Kottayam by ferry, Thursday 26">
+            <circle cx="432" cy="420" r="7"/><text x="446" y="425">Kottayam</text><text class="s" x="446" y="445">Thu 26 · ferry</text>
+          </g>
+          <!-- legend -->
+          <g font-size="16" fill="var(--muted)">
+            <line x1="470" y1="552" x2="500" y2="552" stroke="var(--train)" stroke-width="3"/><text x="508" y="557">train</text>
+            <line x1="560" y1="552" x2="590" y2="552" stroke="var(--bus)" stroke-width="3"/><text x="598" y="557">bus</text>
+            <line x1="642" y1="552" x2="672" y2="552" stroke="var(--ferry)" stroke-width="3"/><text x="680" y="557">boat</text>
+          </g>
+        </svg></div>
+        <p class="caption">This is a schematic: places sit roughly where they are on the map. Hyderabad is far off the top. On a phone, swipe the map sideways.</p>
+      </div>
+    </div>
+
+    <div class="print-only" id="printDays"></div>
+  </section>
+
+  <!-- BUDGET -->
+  <section id="budget">
+    <h2>Budget planner</h2>
+    <p class="sub">Flip the options or type your own amounts, and the totals update as you go. Fill in "Actual" during the trip to track what you've spent. Your changes are saved in this browser.</p>
+
+    <div class="budget">
+      <div>
+        <div class="card pad controls">
+          <label class="toggle"><input type="checkbox" id="optHosted"><span class="sw"></span>The wedding family gives me a room in Tirupur (saves ₹1,600)</label>
+          <label class="toggle"><input type="checkbox" id="optCruise"><span class="sw"></span>Tuesday sunset cruise in Alleppey, 5:30–7:30 pm (₹200; you log off by 5)</label>
+          <div class="segrow">
+            <span>Alleppey room (Tuesday is a work day):</span>
+            <div class="seg" role="group" aria-label="Alleppey room type">
+              <button type="button" data-room="private" aria-pressed="true">Private · ₹900/night</button>
+              <button type="button" data-room="mixed" aria-pressed="false">Mixed · ₹3,150</button>
+              <button type="button" data-room="dorm" aria-pressed="false">Dorm · ₹450/night</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="budgetTable">
+            <thead><tr><th>Item</th><th class="num" style="text-align:right">Planned ₹</th><th class="num" style="text-align:right">Actual ₹</th></tr></thead>
+            <tbody></tbody>
+            <tfoot><tr><td>Total</td><td class="num" style="text-align:right" id="sumPlanned">—</td><td class="num" style="text-align:right" id="sumActual">—</td></tr></tfoot>
+          </table>
+        </div>
+        <div class="toolbar">
+          <button class="btn" type="button" id="resetBudget">Reset budget to the plan</button>
+        </div>
+      </div>
+
+      <aside class="card pad summary" aria-live="polite">
+        <div class="label">Planned total</div>
+        <div class="bigfig num" id="sumBig">₹18,670</div>
+        <div class="bar" id="plannedBar"><i style="width:0"></i></div>
+        <div class="row2"><span id="spareText">₹1,330 spare</span><span id="pctText">93% of budget</span></div>
+        <div class="divider"></div>
+        <div class="label">Spent so far</div>
+        <div class="bigfig num" id="actualBig" style="font-size:26px">₹0</div>
+        <div class="bar actual" id="actualBar"><i style="width:0"></i></div>
+        <div class="row2"><span id="leftText">₹20,000 left to spend</span></div>
+        <div class="divider"></div>
+        <label class="cap">Budget cap ₹ <input type="number" id="cap" min="0" step="500" value="20000" inputmode="numeric"></label>
+        <p class="caption">The wedding gift and shopping aren't included. Prices are listing rates checked on 25 Oct 2026, so confirm them when you book.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- CHECKLISTS -->
+  <section id="checklists">
+    <h2>Checklists</h2>
+    <p class="sub">Tick items as you go. Your ticks are saved in this browser.</p>
+    <div class="grid-3" id="checklists-grid"></div>
+    <div class="toolbar"><button class="btn" type="button" id="resetChecks">Clear all ticks</button></div>
+  </section>
+
+  <!-- STAY & FOOD -->
+  <section id="stay">
+    <h2>Where you stay</h2>
+    <p class="sub">You need 7 paid nights, and Fri 20 and Sat 28 are spent on the bus. Book on free-cancellation rates.</p>
+    <article class="card stay" style="margin-bottom:16px">
+        <div class="body">
+          <h3>Tirupur · Sat 21</h3>
+          <p>Ask your colleague first, because families often book rooms for out-of-town guests. If not, a budget hotel such as <a href="https://www.oyorooms.com/97475/">OYO Super Hotel O</a> is 2.9 km from the New Bus Stand.</p>
+          <p class="price">₹1,467 + ₹155 tax (quoted for 25 Oct), or ₹0 if the family hosts you</p>
+        </div>
+      </article>
+    <div class="grid-2">
+      <article class="card stay">
+        <img src="images/kochi-nets.jpg" alt="Chinese fishing nets at sunset in Fort Kochi" loading="lazy">
+        <div class="body">
+          <h3>Fort Kochi · Sun 22</h3>
+          <p>Stay at <a href="https://www.hostelworld.com/st/hostels/asia/india/kochi/">Zostel Kochi (Fort Kochi)</a>, 8.0/10 from 456 reviews, or The Hosteller Fort Kochi, 8.5 from 191. Both are a short walk from the beach and the fishing nets. You'll work from here on Monday, so ask for a Wi-Fi speed screenshot, and check that reception will hold your bag after check-out.</p>
+          <p class="price">About ₹900 for a private room (dorm beds are listed from €3.80)</p>
+        </div>
+      </article>
+      <article class="card stay">
+        <img src="images/alleppey.jpg" alt="Thatched houseboat beside a banyan tree on Alleppey's backwaters" loading="lazy">
+        <div class="body">
+          <h3>Alleppey · Mon 23 – Fri 27 (5 nights)</h3>
+          <p>One room for five nights, so you never repack. Book a private room for Tuesday's work calls, such as Lake and Paddy Holiday Home or Dazzle Dew, or a dorm at Funky Art Beach House (10/10 from 191 reviews) to save ₹2,250. A middle option is a private room for the two work nights and a dorm bed for the three leave days, at a hostel that has both (₹3,150). Ask for a Wi-Fi speed screenshot and a 5-night rate, and say you'll check in about 9:30 pm on Monday. Anywhere in town works: the boat jetty and the beach are about 3 km apart, and an auto between them is ₹50–80.</p>
+          <p class="price">₹900 a night private (₹4,500), mixed ₹3,150, or ₹450 dorm (₹2,250) · <a href="https://www.hostelworld.com/st/hostels/asia/india/alleppey/">Hostelworld</a></p>
+        </div>
+      </article>
+    </div>
+
+    <h2 style="margin-top:44px">What to eat</h2>
+    <p class="sub">About ₹450 a day. At lunch, Kerala "meals" (a thali with unlimited rice) is the best value on the trip.</p>
+    <div class="card pad foodlist">
+      <div class="food"><span><b>Tirupur</b></span><span class="w">Wedding feast, then idli, vada and pongal before Sunday's train</span><span class="p">₹0–80</span></div>
+      <div class="food"><span><b>Kochi, Sunday</b></span><span class="w">Biryani at <a href="https://en.wikipedia.org/wiki/Kayees_Rahmathulla_Hotel">Kayees</a> (it sells out early), then fish curry or appam with stew for dinner in Fort Kochi</span><span class="p">₹200–350 a meal</span></div>
+      <div class="food"><span><b>Alleppey mornings</b></span><span class="w">Puttu and kadala, or appam and stew, for breakfast, and Kerala meals for lunch</span><span class="p">₹60–150</span></div>
+      <div class="food"><span><b>Alleppey dinners</b></span><span class="w">Karimeen pollichathu (pearl-spot fish baked in banana leaf), duck roast, or tapioca and fish curry at Thaff or a family toddy shop</span><span class="p">₹200–350</span></div>
+      <div class="food"><span><b>Kottayam, Thursday</b></span><span class="w">Meals with Kottayam-style fish curry, red and sour with kudampuli</span><span class="p">₹100–180</span></div>
+      <div class="food"><span><b>Marari, Friday</b></span><span class="w">Fried fish and rice near the beach, and tender coconut on the walk</span><span class="p">₹150–300</span></div>
+      <div class="food"><span><b>Ernakulam, Saturday</b></span><span class="w">Biryani or meals near Vyttila before the bus, plus snacks for the road</span><span class="p">₹150–250</span></div>
+    </div>
+  </section>
+
+  <!-- TIPS -->
+  <section id="tips">
+    <h2>Good to know</h2>
+    <div class="grid-2">
+      <div class="card pad">
+        <h3>On the road</h3>
+        <ul class="tips">
+          <li>Alappuzha is flat and compact. Autos start at ₹30 in town; ask them to use the meter.</li>
+          <li>Buses north to Kalavoor, Mararikulam and Ernakulam run along the highway every few minutes. Any bus marked Cherthala or Ernakulam works.</li>
+          <li>Late November can bring showers in Kerala and Tamil Nadu, so keep a rain jacket on top of your bag.</li>
+          <li>Keep ₹500–1,000 in small notes for buses, ferries and autos. UPI works almost everywhere else.</li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <h3>Sights</h3>
+        <ul class="tips">
+          <li>Kottayam ferry (SWTD, ₹29). From Alappuzha: 7:15, 9:35 and 11:30 am, and 2:30 and 5:15 pm. From Kottayam: 6:45 and 11:30 am, and 1, 3:30 and 5:15 pm. These are from a 2024 timetable board, so confirm them at the jetty.</li>
+          <li>Sunset cruise: SWTD "See Kuttanad" boat, daily 5:30–7:30 pm, ₹200. Book on 94000 50326.</li>
+          <li>Alappuzha lighthouse: 9–11:45 am and 2–5:30 pm, closed on Mondays.</li>
+          <li>International Coir Museum, Kalavoor: 9:30 am–5 pm, closed on Mondays.</li>
+          <li>Canoe tours: book through your stay, and ask for the narrow side canals. Mornings are cooler and the light is better.</li>
+          <li>Kerala eateries serve free warm jeera water. It's safer than tap water and saves on bottles.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 style="margin-top:44px">What you'll see</h2>
+    <div class="gallery" style="margin-top:14px">
+      <figure><img src="images/kuttanad.jpg" alt="Palm-lined canal in Kuttanad" loading="lazy"><figcaption>Kuttanad canals</figcaption></figure>
+      <figure><img src="images/ferry.jpg" alt="Government ferry on a canal in Alappuzha" loading="lazy"><figcaption>Ferry to Kottayam</figcaption></figure>
+      <figure><img src="images/ducks.jpg" alt="A duck farmer in a canoe with a flock on Vembanad Lake" loading="lazy"><figcaption>Ducks on Vembanad</figcaption></figure>
+      <figure><img src="images/marari.jpg" alt="Sunset over the sea at Marari beach" loading="lazy"><figcaption>Marari beach</figcaption></figure>
+      <figure><img src="images/pier.jpg" alt="Rusted pillars of Alappuzha's old pier" loading="lazy"><figcaption>Alappuzha's old pier</figcaption></figure>
+      <figure><img src="images/lighthouse.jpg" alt="Red and white Alappuzha lighthouse" loading="lazy"><figcaption>Alappuzha lighthouse</figcaption></figure>
+      <figure><img src="images/karimeen.jpg" alt="Karimeen fry on a banana leaf" loading="lazy"><figcaption>Karimeen fry</figcaption></figure>
+      <figure><img src="images/kochi-nets.jpg" alt="Chinese fishing nets at sunset in Fort Kochi" loading="lazy"><figcaption>Fort Kochi sunset</figcaption></figure>
+    </div>
+    <div class="toolbar"><button class="btn primary" type="button" onclick="window.print()">Print or save as PDF</button></div>
+  </section>
+</main>
+
+<footer id="credits">
+  <div class="wrap">
+    <h3>Sources (checked 25 Oct 2026)</h3>
+    <ul>
+      <li><a href="https://tickets.paytm.com/bus/kallada-travels/hyderabad-tiruppur">Kallada Hyderabad → Tiruppur (Paytm)</a>: 6 sleepers a day, boarding at Miyapur and Kukatpally.</li>
+      <li><a href="https://erail.in/trains-between-stations/tiruppur-TUP/ernakulam-jn-ERS">Tiruppur → Ernakulam trains (erail)</a>: 20629 Sabari Express at 8:10 am, daily.</li>
+      <li><a href="https://www.easemytrip.com/bus/ernakulam-to-hyderabad-bus-distance/">EaseMyTrip</a> and <a href="https://www.abhibus.com/bus-booking/ac-buses-from-ernakulam-hyderabad-ticket-booking">AbhiBus</a>, Ernakulam → Hyderabad: sleepers leaving 12:16–4:31 pm, 19–20 hours, ₹2,000–2,700.</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Kottayam_Alappuzha_Boat_Time_2024.jpg">Kottayam–Alappuzha boat timetable board (2024 photo)</a>, <a href="https://www.onmanorama.com/travel/kerala/2025/12/08/how-to-explore-kumarakom-routes-fares.html">Onmanorama, Dec 2025</a> (₹29 fare) and <a href="https://asocialnomad.com/india/allepy-to-kollam/">A Social Nomad</a> (jetty moved in February 2025).</li>
+      <li><a href="https://www.onmanorama.com/news/kerala/2026/10/06/sunset-cruise-tourism-boat-service-alappuzha.amp.html">Onmanorama: Alappuzha sunset cruise</a> (SWTD, daily 5:30–7:30 pm, ₹200, booking 94000 50326; launched October 2026).</li>
+      <li><a href="https://thirdeyetraveller.com/alappuzha-lighthouse-alleppey-beach/">Third Eye Traveller: Alappuzha lighthouse</a> (hours, Monday closure), <a href="https://en.wikipedia.org/wiki/International_Coir_Museum">Wikipedia: International Coir Museum</a> and <a href="https://www.trawell.in/kerala/alappuzha-alleppey/mararikulam-beach">Trawell: Mararikulam beach</a> (bus to the junction, then an auto).</li>
+      <li><a href="https://www.hostelworld.com/st/hostels/asia/india/alleppey/">Hostelworld, Alleppey</a> and <a href="https://www.oyorooms.com/97475/">OYO Tiruppur</a>.</li>
+      <li>The Hyderabad → Tirupur bus is ₹3,000, the fare you found (listings had shown ₹1,390–2,300).</li>
+      <li>These are estimates: KSRTC bus fares and times, the canoe price, the lighthouse and museum fees, and sleeper fares, which change with demand.</li>
+    </ul>
+    <h3>Photo credits (Wikimedia Commons)</h3>
+    <ul>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Kerala_Kuttanad1.jpg">Kuttanad</a>: Sourav Niyogi, CC BY-SA 3.0 · <a href="https://commons.wikimedia.org/wiki/File:Kochi,_Fishing_nets_at_sunset,_Kerala,_India.jpg">Kochi nets</a>: Vyacheslav Argenberg, CC BY 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Alappuzha_Boat_Beauty_W.jpg">Alappuzha</a>: Augustus Binu, CC BY-SA 3.0</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Kerala_Water_Transport_Boat_service_Alappuzha_to_Kottayam.jpg">Ferry</a>: Varghesepunnamada, CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Duck_farming_vembanad_lake_01.jpg">Ducks</a>: Challiyan (Dr. Vipin Challiyil), CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Marari_Beach_Alapuzha_by_KS.jpg">Marari</a>: Krissubh, CC BY-SA 4.0</li>
+      <li><a href="https://commons.wikimedia.org/wiki/File:Alappuzha_Pier.jpg">Pier</a>: Nazrinashraf, CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Alappuzha_Lighthouse_on_coast_of_Kerala.jpg">Lighthouse</a>: Rudolph.A.furtado, CC BY 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Traditional_karimeen_fry.JPG">Karimeen</a>: Shobha Elizabeth John, CC BY-SA 4.0 · <a href="https://commons.wikimedia.org/wiki/File:Appam_-_%E0%AE%85%E0%AE%AA%E0%AF%8D%E0%AE%AA%E0%AE%AE%E0%AF%8D.jpg">Appam</a>: VinPrasad, CC BY-SA 4.0</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function () {
+  const STORE = 'keralaTrip.v1';
+  const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } };
+  const DEFAULT_OPTS = { cruise: true };
+  const state = Object.assign({ day: null, budget: {}, actual: {}, opts: {}, checks: {}, cap: 20000 }, load());
+  state.opts = Object.assign({}, DEFAULT_OPTS, state.opts);
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* storage unavailable */ } };
+  const inr = v => '₹' + Math.round(v).toLocaleString('en-IN');
+  const $ = s => document.querySelector(s);
+
+  /* ---------- Days ---------- */
+  const ICONS = {
+    bus: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M3 11h18M7 20v-3M17 20v-3"/></svg>',
+    heart: '<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.5-7 10-7 10z"/></svg>',
+    home: '<svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/></svg>'
+  };
+  const DAYS = [
+    { id: 'fri20', iso: '2026-11-20', d: 'Fri 20', k: 'Bus', title: 'Hyderabad → overnight sleeper', tag: 'Travel', icon: 'bus', places: ['tup'],
+      plan: [['6:00 pm', 'Leave Cyber Towers. Take the metro (Hitech City → Ameerpet → Miyapur) or an auto to Kukatpally or Miyapur.'],
+             ['7:00 pm', 'An unhurried dinner near the boarding point.'],
+             ['8:30–9:30 pm', 'Board the sleeper to Tirupur (15–17 hrs). Book a departure in this window so office traffic can\'t make you miss it.']],
+      sleep: 'On the bus, about 10:30 pm–6:30 am', cost: 'Bus ₹3,000 + metro or auto ~₹100',
+      buffer: 'Friday traffic can turn a 40-minute ride into 90 minutes. Leaving at 6 pm for an 8:30 pm bus still leaves you an hour spare.',
+      tip: 'Pack the wedding outfit flat on top so it arrives uncrushed.' },
+    { id: 'sat21', iso: '2026-11-21', d: 'Sat 21', k: 'Wedding', title: 'Tirupur · the wedding', tag: 'Wedding', icon: 'heart', places: ['tup'],
+      plan: [['12–1:30 pm', 'Arrive in Tirupur (a 9 pm bus gets in around midday). Check in, shower and nap.'],
+             ['Evening', 'The wedding. The wedding meals cover lunch and dinner.']],
+      sleep: '10:30 pm–6:30 am', cost: 'Room ~₹1,600, or ₹0 if the family hosts you',
+      buffer: 'Long-distance buses often arrive 1–2 hours late, so nothing is planned before the evening.',
+      tip: 'Ask your colleague this week whether the family is booking rooms for guests.' },
+    { id: 'sun22', iso: '2026-11-22', d: 'Sun 22', k: 'Kochi', title: 'Kochi, and sunset at Fort Kochi', tag: 'Kochi', img: 'kochi-nets', places: ['tup', 'cbe', 'pkd', 'kochi'],
+      plan: [['7:30 am', 'Reach Tiruppur station. The train leaves at 8:10.'],
+             ['8:10 am–12:50 pm', '20629 Sabari Express to Ernakulam Town.'],
+             ['1:30 pm', 'Meet your person. Lunch at Kayees\' Ernakulam branch near Durbar Hall Ground; it sells out, so go straight there.'],
+             ['3:00 pm', 'Water Metro to Fort Kochi (~₹40). Check into your hostel and drop your bag.'],
+             ['3:30–5:15 pm', 'Wander Jew Town and Mattancherry slowly, or just the beach road.'],
+             ['5:15–6:15 pm', 'Sunset at the Chinese fishing nets on Fort Kochi beach. The sun sets around 5:55 pm, so be there by 5:30.'],
+             ['7:00–9:00 pm', 'Dinner in Fort Kochi, then walk back to your hostel. No bus tonight.']],
+      sleep: '11 pm–7 am', cost: 'Train ~₹200 · Water Metro ₹40 · room ~₹900',
+      buffer: 'Sunset is the one fixed point today. Ernakulam to Fort Kochi takes about 45 minutes, so even a train 3 hours late gets you there in time. If you miss the 8:10 completely, the 11:40 Kerala Express reaches Ernakulam Town at 4:30 pm; go straight to the beach. Monday gives you a backup sunset too.',
+      tip: 'You get 7+ hours together, from about 1:30 to 9 pm, and nobody has to rush for a bus at the end.' },
+    { id: 'mon23', iso: '2026-11-23', d: 'Mon 23', k: 'WFH', title: 'Fort Kochi · work day → Alleppey', tag: 'WFH', img: 'appam', places: ['kochi', 'alp'],
+      plan: [['7:00–8:30 am', 'Morning walk to the fishing nets and the fish auction, past St. Francis Church, then appam and stew for breakfast.'],
+             ['9:30 am–6:30 pm', 'Work from the hostel. Check out at the usual time, and keep working from the common area while reception holds your bag.'],
+             ['5:45 pm', 'Backup sunset, only if Sunday\'s was clouded out: a 20-minute break to walk to the nets.'],
+             ['6:45 pm', 'Bus or Water Metro to Vyttila hub, then any KSRTC bus to Alappuzha (about 2 hrs in total). Check in around 9:30 pm.']],
+      sleep: '11 pm–7 am', cost: 'Buses ~₹130 · room ₹900 · food ~₹400',
+      buffer: 'Vyttila to Alappuzha buses run every 15–30 minutes until late, so there\'s no fixed bus to catch.',
+      tip: 'Choose your Monday seat near a socket, and test the Wi-Fi on Sunday night.' },
+    { id: 'tue24', iso: '2026-11-24', d: 'Tue 24', k: 'WFH', title: 'Alleppey · work day', tag: 'WFH', img: 'alleppey', places: ['alp'],
+      plan: [['7:00–8:15 am', 'A short walk along the canal nearest your stay, then puttu and kadala for breakfast.'],
+             ['8:30 am–5:00 pm', 'Work, starting an hour early so you can log off at 5. At lunch, have a fish meal nearby with karimeen (pearl-spot fish) fry.'],
+             ['5:00 pm', 'Walk or take an auto to the SWTD boat jetty, next to the KSRTC bus stand.'],
+             ['5:30–7:30 pm', 'Sunset cruise on the SWTD "See Kuttanad" boat across Punnamada Lake, where the Nehru Trophy race is held. The sun sets around 5:55 pm, so take an upper-deck seat. ₹200; book on 94000 50326.'],
+             ['7:45–9:30 pm', 'Auto to Alappuzha beach (~₹60) to see the old pier and the lighthouse after dark, then a Kuttanad dinner of karimeen pollichathu or duck roast. Mullakkal temple street, near the bus stand, is usually busy with stalls in the evenings of this season.'],
+             ['9:30 pm', 'An early night, because the canoe picks you up at 7 am.']],
+      sleep: '10:30 pm–6:30 am', cost: 'Room ₹900 · cruise ₹200 · food ~₹450 · autos ~₹120',
+      buffer: 'If you can\'t log off by 5, switch the cruise off in the budget planner and work 9:30–6:30 as usual. Take a 20-minute break at 5:45 pm for the sunset if the beach is near your stay, and keep the beach and dinner for the evening. If a call runs late on cruise day, you lose ₹200, and the evening still works.',
+      tip: 'Book Wednesday\'s 7 am canoe through your stay on Monday night. With three leave days ahead, there\'s no need to squeeze anything else in tonight.' },
+    { id: 'wed25', iso: '2026-11-25', d: 'Wed 25', k: 'Leave', title: 'Canoe morning, lighthouse and beach', tag: 'Leave', img: 'kuttanad', places: ['alp', 'kut'],
+      plan: [['7:00–9:30 am', 'Village canoe through the narrow Kuttanad canals (~₹500), past paddy fields, duck flocks and village homes, in the best light of the day.'],
+             ['10:00 am–2:30 pm', 'Breakfast, a nap and a meals lunch. Nothing is planned.'],
+             ['3:00–4:00 pm', 'Climb Alappuzha lighthouse (~₹20; open 2–5:30 pm, closed Mondays) for the view over the coast and the palm-lined town.'],
+             ['4:00–6:15 pm', 'Walk across to the beach for the old pier\'s rusted pillars, chai, and the sunset at around 5:55 pm.'],
+             ['Evening', 'Dinner, then ask at your stay where tomorrow\'s Kottayam ferry leaves from.']],
+      sleep: '10:30 pm–7 am', cost: 'Canoe ~₹500 · lighthouse ~₹20 · autos ~₹100',
+      buffer: 'Only the canoe pickup has a fixed time. If it rains in the morning, move the canoe to Friday at 7 am and go to Marari after lunch.',
+      tip: 'The canoe goes where houseboats can\'t fit. Ask for a route through the narrow side canals, not the main channel.' },
+    { id: 'thu26', iso: '2026-11-26', d: 'Thu 26', k: 'Leave', title: 'Public ferry across Vembanad Lake', tag: 'Leave', img: 'ferry', places: ['alp', 'ktm'],
+      plan: [['9:00 am', 'Breakfast, then walk or take an auto to the boat jetty. Be there 20 minutes early for a window seat.'],
+             ['9:35 am–~12:30 pm', 'Government (SWTD) ferry to Kottayam, ₹29. It\'s the local commuter boat, through Kuttanad canals and paddy fields that lie below sea level, then out across Vembanad Lake.'],
+             ['12:30–2:00 pm', 'Lunch in Kottayam: meals with Kottayam-style fish curry. The boat may end at Kodimatha or Kanjiram jetty, and an auto into town is ₹50–100.'],
+             ['2:30–4:30 pm', 'KSRTC bus back to Alappuzha (~1.5–2 hrs, ~₹70). If you loved the boat, the 3:30 pm ferry back gets in around 6:30 pm instead.'],
+             ['Evening', 'Rest, then dinner near your stay.']],
+      sleep: '10:30 pm–7 am', cost: 'Ferry ₹29 · bus ~₹70 · autos ~₹150 · lunch ~₹150',
+      buffer: 'Boats leave Alappuzha at 7:15, 9:35 and 11:30 am, and 2:30 and 5:15 pm (2024 timetable board). If you miss the 9:35, take the 11:30 and come back by bus.',
+      tip: 'It\'s the same water a houseboat cruises, for ₹29. The Alappuzha jetty moved in 2025, so check where the boat leaves from the day before.' },
+    { id: 'fri27', iso: '2026-11-27', d: 'Fri 27', k: 'Leave', title: 'Coir Museum and Marari beach', tag: 'Leave', img: 'marari', places: ['alp', 'coir', 'marari'],
+      plan: [['8:30–10:00 am', 'Sleep in, then a slow breakfast.'],
+             ['10:00 am', 'Any bus north towards Cherthala or Ernakulam (~20 min, ~₹20). Get off at Kalavoor.'],
+             ['10:30–11:30 am', 'International Coir Museum (9:30 am–5 pm, closed Mondays; small fee): the story of Alappuzha\'s coconut-fibre trade, told through murals and displays.'],
+             ['11:30 am–12:00 pm', 'Bus on to Mararikulam junction, then an auto to the beach (₹50–100).'],
+             ['12:00–6:15 pm', 'Marari beach: a fish lunch, a long nap under the palms, a walk to the fishing village, and the sunset at around 5:55 pm.'],
+             ['6:30 pm', 'Auto to the junction and a bus back to Alappuzha (~30 min). Dinner, then pack.']],
+      sleep: '10:30 pm–7 am', cost: 'Buses ~₹50 · autos ~₹200 · museum ~₹50 · lunch ~₹250',
+      buffer: 'Marari is on the main Alappuzha–Kochi road, where buses run late into the evening, so the only time that matters today is the sunset.',
+      tip: 'The sea at Marari can be rough. Swim only where local people do, and stay out of the water after dark.' },
+    { id: 'sat28', iso: '2026-11-28', d: 'Sat 28', k: 'Leave', title: 'Last slow morning → sleeper home', tag: 'Leave', img: 'pier', places: ['alp', 'kochi'],
+      plan: [['7:30–9:30 am', 'A last walk along the canals or the beach, and a long breakfast.'],
+             ['10:00–10:30 am', 'Check out. Train or KSRTC bus to Ernakulam (~1.5 hrs, ~₹80).'],
+             ['12:00–1:00 pm', 'Lunch near your boarding point (Vyttila hub has plenty of places to eat), then wait somewhere shady.'],
+             ['1:00–4:30 pm', 'Sleeper to Hyderabad (~19–20 hrs). Afternoon departures are listed at ₹2,000–2,700, and the later ones give you more slack.']],
+      sleep: 'On the bus, about 10 pm–6 am', cost: 'Train or bus ~₹80 · sleeper ~₹2,300',
+      buffer: 'Alappuzha to Ernakulam takes 1.5 hrs, with buses every 15–30 minutes and frequent trains. Leaving by 10:30 am gives you 2+ hours spare, even for a 1 pm bus.',
+      tip: 'Check your sleeper\'s exact boarding point (Vyttila, Kaloor or Edappally) the day before.' },
+    { id: 'sun29', iso: '2026-11-29', d: 'Sun 29', k: 'Home', title: 'Home, whenever the bus gets in', tag: 'Travel', icon: 'home', places: [],
+      plan: [['9 am–1 pm', 'Arrive in Hyderabad, often a little late. Get off at the drop point nearest Kondapur and take an auto home.'],
+             ['Rest of the day', 'Laundry, a nap and an early night.']],
+      sleep: '', cost: 'Auto ~₹150',
+      buffer: 'Nothing is planned for Sunday, so a late bus doesn\'t matter.', tip: '' }
+  ];
+
+  const strip = $('#dayStrip'), card = $('#dayCard'), map = $('#map');
+  const tagClass = t => t === 'WFH' ? 'wfh' : (t === 'Leave' ? 'leave' : '');
+  const todayISO = new Date().toISOString().slice(0, 10);
+
+  DAYS.forEach(day => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'daybtn'; b.setAttribute('role', 'tab'); b.dataset.id = day.id;
+    if (day.iso === todayISO) b.classList.add('today');
+    b.innerHTML = `<span class="d">${day.d}</span><span class="k">${day.k}</span>`;
+    b.addEventListener('click', () => select(day.id, true));
+    strip.appendChild(b);
+  });
+
+  function renderDay(day, i) {
+    const pic = day.img
+      ? `<div class="pic"><img src="images/${day.img}.jpg" alt=""></div>`
+      : `<div class="pic icon">${ICONS[day.icon] || ''}</div>`;
+    const rows = day.plan.map(([t, x]) => `<li><span class="t">${t}</span><span class="x">${x}</span></li>`).join('');
+    const meta = [day.sleep && `Sleep: ${day.sleep}`, day.cost && `Spend: ${day.cost}`].filter(Boolean).map(m => `<span>${m}</span>`).join('');
+    return `${pic}<div class="body">
+      <div class="dayhead"><span class="date">${day.d} Nov</span><h3>${day.title}</h3><span class="pill ${tagClass(day.tag)}">${day.tag}</span></div>
+      <ol class="sched">${rows}</ol>
+      <div class="meta">${meta}</div>
+      ${day.buffer ? `<div class="planb"><b>Slack:</b> ${day.buffer}</div>` : ''}
+      ${day.tip ? `<div class="tip">${day.tip}</div>` : ''}
+      ${i == null ? '' : `<div class="daynav"><button class="btn" type="button" data-step="-1" ${i === 0 ? 'disabled' : ''}>← Previous</button><button class="btn" type="button" data-step="1" ${i === DAYS.length - 1 ? 'disabled' : ''}>Next →</button></div>`}
+    </div>`;
+  }
+
+  function renderPrint() {
+    $('#printDays').innerHTML = DAYS.map(d => `<article class="card daycard" style="margin-bottom:12px">${renderDay(d, null)}</article>`).join('');
+  }
+
+  function select(id, focusBtn) {
+    const i = Math.max(0, DAYS.findIndex(d => d.id === id));
+    const day = DAYS[i];
+    state.day = day.id; save();
+    strip.querySelectorAll('.daybtn').forEach(b => {
+      const on = b.dataset.id === day.id;
+      b.setAttribute('aria-selected', on);
+      b.tabIndex = on ? 0 : -1;
+      if (on && focusBtn) b.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    });
+    card.innerHTML = renderDay(day, i);
+    card.querySelectorAll('[data-step]').forEach(btn => btn.addEventListener('click', () => select(DAYS[i + Number(btn.dataset.step)].id, true)));
+    map.classList.add('focus');
+    map.querySelectorAll('.edge').forEach(e => e.classList.toggle('on', (e.dataset.days || '').split(' ').includes(day.id)));
+    map.querySelectorAll('.node').forEach(n => n.classList.toggle('on', day.places.includes(n.dataset.place)));
+  }
+
+  strip.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const i = DAYS.findIndex(d => d.id === state.day);
+    const j = Math.min(DAYS.length - 1, Math.max(0, i + (e.key === 'ArrowRight' ? 1 : -1)));
+    select(DAYS[j].id, true);
+    strip.querySelector(`[data-id="${DAYS[j].id}"]`).focus();
+    e.preventDefault();
+  });
+  map.querySelectorAll('.node').forEach(n => {
+    const go = () => select(n.dataset.day, true);
+    n.addEventListener('click', go);
+    n.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { go(); e.preventDefault(); } });
+  });
+
+  const inTrip = DAYS.find(d => d.iso === todayISO);
+  select(inTrip ? inTrip.id : (state.day || DAYS[0].id), false);
+  renderPrint();
+
+  // Countdown chip
+  (function () {
+    const start = new Date('2026-11-20T18:00:00+05:30'), end = new Date('2026-11-29T23:59:00+05:30'), now = new Date();
+    const el = $('#countdown');
+    if (now < start) {
+      const days = Math.ceil((start - now) / 864e5);
+      el.innerHTML = `Starts in <b>${days} day${days === 1 ? '' : 's'}</b>`;
+    } else if (now <= end) {
+      const n = Math.floor((now - new Date('2026-11-20T00:00:00+05:30')) / 864e5) + 1;
+      el.innerHTML = `<b>Day ${n}</b> of 10`;
+    } else {
+      el.innerHTML = 'Trip done. Welcome home!';
+    }
+  })();
+
+  /* ---------- Budget ---------- */
+  const LINES = [
+    { group: 'Getting there and back' },
+    { id: 'busOut', label: 'Bus out: Hyderabad → Tirupur sleeper, plus the ride to Miyapur', hint: 'Your fare ₹3,000 + ~₹100 metro or auto', plan: 3100 },
+    { id: 'busHome', label: 'Bus home: Ernakulam → Hyderabad sleeper, plus the ride home', hint: 'Listings show ₹2,000–2,700 for 1–4:30 pm departures', plan: 2400 },
+    { id: 'local2', label: 'Train and Kerala buses', hint: 'Sabari 200 · Fort Kochi → Alappuzha 90 · Alappuzha → Ernakulam 80', plan: 370 },
+    { group: 'Stays (7 nights)' },
+    { id: 'stTup', label: 'Tirupur, Sat 21', hint: 'Budget hotel ~₹1,600 with tax, or ₹0 if the wedding family hosts you', plan: () => state.opts.hosted ? 0 : 1600 },
+    { id: 'stKochi', label: 'Fort Kochi, Sun 22', hint: 'Private room near the beach, so the nets are a short walk', plan: 900 },
+    { id: 'stAlp', label: 'Alleppey, Mon 23 – Fri 27 (5 nights)', hint: () => ROOMS[state.opts.room || 'private'].hint, plan: () => ROOMS[state.opts.room || 'private'].plan },
+    { group: 'Food and fun' },
+    { id: 'food', label: 'Food, 9 days', hint: 'About ₹450 a day; the wedding covers Saturday', plan: 3800 },
+    { id: 'sightsAlp', label: 'Sights', hint: 'Canoe ~500 · Kottayam ferry 29 · lighthouse ~20 · Coir Museum ~50', plan: 600 },
+    { id: 'cruise', label: 'Sunset cruise, Tue 24 (optional)', hint: 'SWTD "See Kuttanad" boat, 5:30–7:30 pm', plan: () => state.opts.cruise ? 200 : 0, opt: 'cruise' },
+    { id: 'around', label: 'Getting around', hint: 'Water Metro, autos, local buses to Kalavoor and Marari, the bus back from Kottayam', plan: 700 },
+    { id: 'misc', label: 'Misc', hint: 'Laundry, mobile recharge, toiletries', plan: 500 }
+  ];
+  const ROOMS = {
+    private: { hint: 'Private room, ₹900 × 5', plan: 4500 },
+    mixed: { hint: 'Private ₹900 × 2 work nights, then dorm ₹450 × 3', plan: 3150 },
+    dorm: { hint: 'Dorm, ₹450 × 5', plan: 2250 }
+  };
+  const DERIVED = { hosted: ['stTup'], room: ['stAlp'], cruise: ['cruise'] };
+  const val = (x) => typeof x === 'function' ? x() : x;
+  const plannedOf = l => (state.budget[l.id] != null ? state.budget[l.id] : val(l.plan));
+
+  const tbody = $('#budgetTable tbody');
+  function buildTable() {
+    tbody.innerHTML = LINES.map(l => {
+      if (l.group) return `<tr class="group"><td colspan="3">${l.group}</td></tr>`;
+      const hint = val(l.hint);
+      return `<tr data-id="${l.id}">
+        <td>${l.label}${hint ? `<span class="hint">${hint}</span>` : ''}</td>
+        <td class="amt"><input type="number" min="0" step="10" inputmode="numeric" aria-label="Planned for ${l.label}" data-kind="plan" data-id="${l.id}"></td>
+        <td class="amt"><input type="number" min="0" step="10" inputmode="numeric" aria-label="Actual for ${l.label}" placeholder="—" data-kind="actual" data-id="${l.id}"></td>
+      </tr>`;
+    }).join('');
+    tbody.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const n = inp.value === '' ? null : Math.max(0, Number(inp.value) || 0);
+        if (inp.dataset.kind === 'plan') state.budget[inp.dataset.id] = n == null ? 0 : n;
+        else if (n == null) delete state.actual[inp.dataset.id]; else state.actual[inp.dataset.id] = n;
+        save(); updateTotals();
+      });
+    });
+    fillInputs();
+  }
+  function fillInputs() {
+    LINES.filter(l => l.id).forEach(l => {
+      const row = tbody.querySelector(`tr[data-id="${l.id}"]`);
+      const p = row.querySelector('[data-kind="plan"]'), a = row.querySelector('[data-kind="actual"]');
+      if (document.activeElement !== p) p.value = plannedOf(l);
+      if (document.activeElement !== a) a.value = state.actual[l.id] != null ? state.actual[l.id] : '';
+      row.classList.toggle('off', l.opt && !state.opts[l.opt]);
+      const hintEl = row.querySelector('.hint'); const h = val(l.hint);
+      if (hintEl && h) hintEl.textContent = h;
+    });
+    updateTotals();
+  }
+  function updateTotals() {
+    const cap = Number(state.cap) || 20000;
+    const planned = LINES.filter(l => l.id).reduce((s, l) => s + (Number(plannedOf(l)) || 0), 0);
+    const actual = LINES.filter(l => l.id).reduce((s, l) => s + (Number(state.actual[l.id]) || 0), 0);
+    const spare = cap - planned, over = spare < 0;
+    $('#sumPlanned').textContent = inr(planned);
+    $('#sumActual').textContent = actual ? inr(actual) : '—';
+    $('#sumBig').textContent = inr(planned);
+    $('#sumBig').classList.toggle('over', over);
+    $('#spareText').textContent = over ? `${inr(-spare)} over budget` : `${inr(spare)} spare`;
+    $('#pctText').textContent = `${Math.round(planned / cap * 100)}% of budget`;
+    const pb = $('#plannedBar'); pb.classList.toggle('over', over); pb.querySelector('i').style.width = Math.min(100, planned / cap * 100) + '%';
+    $('#actualBig').textContent = inr(actual);
+    $('#actualBar i').style.width = Math.min(100, actual / cap * 100) + '%';
+    $('#leftText').textContent = actual > cap ? `${inr(actual - cap)} over the cap` : `${inr(cap - actual)} left to spend`;
+    $('#heroTotal').textContent = inr(planned);
+    $('#heroSpare').textContent = over ? `−${inr(-spare)}` : inr(spare);
+    $('#heroSpare').parentElement.lastChild.textContent = ` of ${inr(cap)}`;
+    const nt = $('#navTotal'); nt.textContent = `${inr(planned)} / ${inr(cap)}`; nt.classList.toggle('over', over);
+  }
+
+  // Options
+  const setOpt = (key, value) => {
+    state.opts[key] = value;
+    (DERIVED[key] || []).forEach(id => { delete state.budget[id]; });   // options reset the lines they drive
+    save(); fillInputs(); syncControls();
+  };
+  function syncControls() {
+    $('#optHosted').checked = !!state.opts.hosted;
+    $('#optCruise').checked = !!state.opts.cruise;
+    const room = state.opts.room || 'private';
+    document.querySelectorAll('.seg [data-room]').forEach(b => b.setAttribute('aria-pressed', b.dataset.room === room));
+  }
+  $('#optHosted').addEventListener('change', e => setOpt('hosted', e.target.checked));
+  $('#optCruise').addEventListener('change', e => setOpt('cruise', e.target.checked));
+  document.querySelectorAll('.seg [data-room]').forEach(b => b.addEventListener('click', () => setOpt('room', b.dataset.room)));
+  const capInput = $('#cap');
+  capInput.value = state.cap;
+  capInput.addEventListener('input', () => { state.cap = Math.max(1, Number(capInput.value) || 20000); save(); updateTotals(); });
+  $('#resetBudget').addEventListener('click', () => {
+    if (!confirm('Reset planned amounts and options to the original plan? Your "Actual" entries stay.')) return;
+    state.budget = {}; state.opts = Object.assign({}, DEFAULT_OPTS); state.cap = 20000; capInput.value = 20000;
+    save(); syncControls(); fillInputs();
+  });
+  syncControls(); buildTable();
+
+  /* ---------- Checklists ---------- */
+  const LISTS = [
+    { id: 'book', title: 'Book this week', items: [
+      'Ask your colleague whether the wedding family is booking rooms for guests',
+      'Hyderabad → Tirupur sleeper, Fri 20, leaving 8:30–9:30 pm from Miyapur or Kukatpally',
+      'Ernakulam → Hyderabad sleeper, Sat 28, leaving 1–4:30 pm, dropping near Kondapur',
+      '20629 Sabari Express, Tiruppur → Ernakulam Town, Sun 22, sleeper class (IRCTC)',
+      'Fort Kochi stay for 22 and Alleppey stay for 23–27 (5 nights), each with a Wi-Fi speed screenshot',
+      'Ask the Alleppey stay to arrange Wednesday\'s 7 am canoe (~₹500)',
+      'Download offline Google Maps for Kochi and Alappuzha',
+      'Save the Kottayam ferry times: from Alappuzha 7:15, 9:35, 11:30 am, 2:30, 5:15 pm',
+      'Confirm Sunday afternoon with your person',
+      'Install the EnteKSRTC Neo-OPRS app for KSRTC tickets'
+    ]},
+    { id: 'trip', title: 'On the trip', items: [
+      'Sun 22: check into Fort Kochi before sunset (around 5:55 pm)',
+      'Mon 23: tell the Alleppey stay you\'ll check in around 9:30 pm, and call 94000 50326 to book Tuesday\'s 5:30 pm cruise and confirm the jetty',
+      'Tue 24: confirm Wednesday\'s 7 am canoe pickup',
+      'Wed 25: ask where Thursday\'s Kottayam ferry leaves from (the jetty moved in 2025)',
+      'Fri 27: carry water, sunscreen and a towel for Marari',
+      'Sat 28: leave Alappuzha by 10:30 am, and be in Ernakulam by about noon'
+    ]},
+    { id: 'pack', title: 'Packing', items: [
+      'Wedding outfit',
+      'Laptop, charger, earphones with a mic',
+      'Power bank and a padded, waterproof laptop sleeve',
+      'Two SIMs on different networks, for a hotspot',
+      'Umbrella or light rain jacket',
+      'Swimwear or a change of clothes for Marari',
+      'Sandals for the canoe and the beach',
+      'Sunscreen and a cap',
+      'Photo ID, plus ticket screenshots saved offline',
+      'Small padlock and a quick-dry towel',
+      '₹500–1,000 in small notes',
+      'Refillable water bottle',
+      'Small day pack for day trips'
+    ]}
+  ];
+  const grid = $('#checklists-grid');
+  function renderLists() {
+    grid.innerHTML = LISTS.map(list => `
+      <div class="card pad cl" data-list="${list.id}">
+        <h3>${list.title}<small class="cnt"></small></h3>
+        <div class="bar"><i style="width:0"></i></div>
+        <ul>${list.items.map((t, i) => {
+          const key = `${list.id}.${i}`;
+          return `<li><label><input type="checkbox" data-key="${key}" ${state.checks[key] ? 'checked' : ''}><span>${t}</span></label></li>`;
+        }).join('')}</ul>
+      </div>`).join('');
+    grid.querySelectorAll('input[type=checkbox]').forEach(cb => cb.addEventListener('change', () => {
+      if (cb.checked) state.checks[cb.dataset.key] = true; else delete state.checks[cb.dataset.key];
+      save(); countLists();
+    }));
+    countLists();
+  }
+  function countLists() {
+    LISTS.forEach(list => {
+      const box = grid.querySelector(`[data-list="${list.id}"]`);
+      const done = list.items.filter((_, i) => state.checks[`${list.id}.${i}`]).length;
+      box.querySelector('.cnt').textContent = `${done}/${list.items.length}`;
+      box.querySelector('.bar i').style.width = (done / list.items.length * 100) + '%';
+    });
+  }
+  $('#resetChecks').addEventListener('click', () => {
+    if (!confirm('Clear all ticks?')) return;
+    state.checks = {}; save(); renderLists();
+  });
+  renderLists();
+})();
+</script>
+</body>
+</html>
